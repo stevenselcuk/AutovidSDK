@@ -221,3 +221,4 @@ public extension XCUIElement {
             Thread.sleep(forTimeInterval: 0.5)
         }
     }
+}
