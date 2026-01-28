@@ -89,6 +89,7 @@ public extension XCUIElement {
 }
 
 
+@MainActor
 public class AutoVidDirector {
     public static func startProduction(app: XCUIApplication) {
         app.launch()
