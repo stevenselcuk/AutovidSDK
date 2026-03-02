@@ -1,129 +1,64 @@
 # AutoVidSDK
 
-**AutoVidSDK** is a specialized Swift library designed to transform standard UI tests into "Cinematic" productions. It extends `XCTest` with human-like interactions, smooth animations, and directorial controls, making it perfect for generating high-quality App Store Previews, marketing videos, and demo clips directly from your UI tests.
+## 📽 What is this?
 
-## 🌟 Features
+A Swift library that turns standard UI tests into high-quality App Store Previews and marketing videos. It extends `XCTest` to make interactions look human and animations look cinematic.
 
-*   **Cinematic Interactions**: tap, type, drag, and scroll with human-like timing and smoothness.
-*   **Director Mode**: Organize your test execution into "Scenes" for better pacing and log readability.
-*   **Smooth Scrolling**: Custom `slowSwipe` methods to replace jerky standard swipes, creating a natural feel.
-*   **Smart Waiting**: Built-in `waitToRead` methods to give viewers time to digest content on screen.
-*   **Reliability**: built-in `waitForExistence` checks to reduce flakiness during recording sessions.
+## ✨ What does it do?
 
-## 📦 Installation
+- **Human Interactions:** Performs taps and typing with natural delays.
+- **Smooth Scrolling:** Replaces jerky swipes with slow, fluid scrolling.
+- **Director Mode:** Organizes tests into "Scenes" for better pacing and readability.
+- **Smart Pauses:** Built-in "reading time" so viewers can actually digest what's on screen.
 
-### Swift Package Manager
+## 🚀 How to use it?
 
-Add `AutoVidSDK` to your `Package.swift` dependencies:
+### 1. Start & Wrap
+
+Initialize the production at the start and finalize it at the end to generate the report.
 
 ```swift
-dependencies: [
-    .package(url: "https://github.com/stevenselcuk/AutoVidSDK.git", from: "1.0.0")
-],
-targets: [
-    .target(
-        name: "YourAppUITests",
-        dependencies: ["AutoVidSDK"]
-    )
-]
+AutoVidDirector.startProduction(app: app)
+// ... your actions ...
+AutoVidDirector.wrapProduction()
 ```
 
-Or add it via Xcode:
-1.  File > Add Packages...
-2.  Enter the URL of this repository.
-3.  Add it to your **UI Testing Bundle** target.
+### 2. Define Scenes
 
-## 🚀 Getting Started
-
-1.  **Import the SDK** in your UI Test file.
-2.  **Use `AutoVidDirector`** to manage the flow.
-3.  **Replace standard interactions** (e.g., `.tap()`) with cinematic ones (e.g., `.humanTap()`).
-
-### Quick Example
+Break your flow into logical scenes for the video.
 
 ```swift
-import XCTest
-import AutoVidSDK
-
-final class AppStorePreviewTests: XCTestCase {
-    
-    @MainActor
-    func testAppPreviewFlow() throws {
-        let app = XCUIApplication()
-        
-        // 1. Start the Production (Launches app & prepares for recording)
-        AutoVidDirector.startProduction(app: app)
-        
-        // 2. Define a Scene
-        AutoVidDirector.scene("Onboarding Flow") {
-            // Use human-like typing
-            let nameField = app.textFields["NameInput"]
-            nameField.humanTap()
-            nameField.humanType("John Doe", speed: 0.15)
-            
-            // Use smooth button presses
-            app.buttons["Continue"].humanTap()
-        }
-        
-        // 3. Navigate with smooth scrolling
-        AutoVidDirector.scene("Explore Feed") {
-            // Swipes slowly to show content
-            app.slowSwipeUp(duration: 2.0)
-            
-            // Pause to let the viewer read
-            AutoVidDirector.waitToRead(seconds: 1.5)
-        }
-        
-        // 4. Wrap up
-        AutoVidDirector.wrapProduction()
-    }
+AutoVidDirector.scene("Onboarding") {
+    app.textFields["Email"].humanType("hello@autovid.com")
+    app.buttons["Next"].humanTap()
 }
 ```
 
-## 🎥 API Reference
+### 3. Cinematic Actions
 
-### AutoVidDirector
+Swap standard XCTest methods for cinematic ones:
 
-The `AutoVidDirector` class acts as the coordinator for your recording session.
+- `.tap()` ➡️ `.humanTap()`
+- `.typeText()` ➡️ `.humanType("Hello")`
+- `.swipeUp()` ➡️ `.slowSwipeUp(duration: 2.0)`
+- `AutoVidDirector.waitToRead(seconds: 2.0)` (Give viewers time to read)
 
-*   `startProduction(app: XCUIApplication)`: Launches the app and waits for the initial animation to settle.
-*   `scene(_ name: String, action: () -> Void)`: Wraps a block of interactions logic into a named "Scene". Adds logs and pauses for pacing.
-*   `waitToRead(seconds: TimeInterval)`: pauses execution explicitly to allow viewers to read text on the screen.
-*   `wrapProduction()`: Finalizes the recording session with a closing delay to avoid abrupt cuts.
-*   `announce(_ text: String)`: Logs a director's announcement (useful for debugging flow).
+## 📂 Where are my files?
 
-### XCUIElement Extensions (Cinematic Actions)
+Once the test finishes, all frames and screenshots are collected:
 
-Standard `XCUIElement` methods are extended for smoother visual results.
+- **Simulator:** The output folder opens automatically in Finder.
+- **Real Device:** Saved within the Xcode Test Report (Attachments).
 
-#### Tapping & Typing
-*   `humanTap()`: Waits for existence, ensures hit-ability (scrolls if needed), pauses briefly, and then taps.
-*   `humanType(_ text: String, speed: TimeInterval = 0.12)`: Taps the element and types text character-by-character with a natural delay.
-*   `longPressAndHold(duration: TimeInterval = 1.0)`: Performs a long press action.
+## 📹 Need videos?
 
-#### Scrolling & Motion
-*   `slowSwipeUp(duration: TimeInterval = 2.0)`: Smoothly scrolls up.
-*   `slowSwipeDown(duration: TimeInterval = 2.0)`: Smoothly scrolls down.
-*   `slowSwipeLeft(duration: TimeInterval = 2.0)`: Smoothly scrolls left.
-*   `slowSwipeRight(duration: TimeInterval = 2.0)`: Smoothly scrolls right.
-*   `cinematicDrag(to dest: XCUIElement, duration: TimeInterval = 1.0, velocity: XCUIGestureVelocity = .default)`: Drags an element to another element's position smoothly.
+Please see [AutoVid](https://github.com/stevenselcuk/AutoVid) companion macoOS app.
 
-#### Controls
-*   `preciseSliderAdjustment(toNormalizedValue value: CGFloat, duration: TimeInterval = 1.0)`: Adjusts a slider to a specific value over a set duration, avoiding "jumping".
-*   `simulateOrientationChange(to orientation: UIDeviceOrientation)`: Rotates the device and waits for the UI to adapt.
+## Example App
 
-## 💡 Tips for Great Recordings
+Please see [AutoVidMockApp](https://github.com/stevenselcuk/AutoVidMockApp) iOS app for example usage.
 
-1.  **Pacing is Key**: Use `waitToRead` liberally. Viewers need time to process what they see.
-2.  **Break it Down**: Use `scene` blocks to logically separate parts of your flow. It makes the test code easier to read and maintain.
-3.  **Hide the Status Bar**: For professional App Store previews, remember to clean up the status bar (full battery, 9:41 time) using `xcrun simctl status_bar` commands before running your test.
-4.  **Use Accessibility Identifiers**: Ensure your UI elements have `.accessibilityIdentifier` set in your main app code for reliable finding.
+## 📦 Installation
 
-## See Example
-
-See the example mock app for more details.
-https://github.com/stevenselcuk/AutoVidMockApp
-
-## 📄 License
-
-This SDK is available under the MIT license. See the LICENSE file for more info.
+Add via Swift Package Manager:
+`https://github.com/stevenselcuk/AutoVidSDK.git`
